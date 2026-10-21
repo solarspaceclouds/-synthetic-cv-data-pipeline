@@ -1,0 +1,31 @@
+# Insert with occlusion handling: things closer than the new car (depth) are restored on top of it.
+# Placement as in coco_car_insert (perspective, free space, ground check); FLUX.2-klein, text-conditioned.
+name: coco_car_insert_occlusion
+domain: scene
+source: {annotations: data/coco/annotations/instances_val2017.json, images: data/coco/val2017, split: val2017, download_missing: true}
+targets: {classes: [car], max_per_image: 1}
+operation: insert
+conditioning:
+  type: text
+  prompt: "a photo of a {attr} car parked on the street"
+  attributes: [red, white, black, silver, blue, grey]
+placement:
+  y_jitter: 0.05
+  size_jitter: 0.15
+  gap: 0.05
+  min_height_px: 32
+  ground_phrases: [road, street, parking lot]   # bottom of the new car must be on these
+  ground_min_frac: 0.6
+mask: {dilate_px: 8}
+generator: {adapter: flux2_klein_inpaint, res: 512, context_scale: 2.5}
+labeler: {adapter: gdino_sam2}
+verify: {min_fill: 0.25}
+postprocess:
+  ops:
+    - {op: downscale, p: 0.5, factor: [0.5, 0.85]}
+    - {op: noise, p: 0.5, sigma: [1, 4]}
+    - {op: jpeg, p: 0.8, quality: [50, 90]}
+output: {dir: out/coco_car_insert_occlusion}
+n_samples: 12
+seed: 3
+occlusion: {enabled: true, tol: 0.3}   # keep poles, hydrants, people in front of the new car

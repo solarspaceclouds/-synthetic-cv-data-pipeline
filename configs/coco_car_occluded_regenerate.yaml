@@ -1,0 +1,15 @@
+# Occlusion test: cars partly hidden behind a pole, a tree, a hydrant, a skateboarder and horses get a
+# new appearance; everything in front of them must stay in front (occlusion handling is on by default).
+name: coco_car_occluded_regenerate
+domain: scene
+source: {annotations: data/coco/annotations/instances_val2017.json, images: data/coco/val2017, split: val2017, download_missing: true}
+targets: {classes: [car], min_area: 5000, max_per_image: 1, image_ids: [526392, 17029, 439623, 278705, 507975]}
+operation: regenerate
+conditioning:
+  type: text
+  prompt: "a photo of a {attr} car"
+  attributes: [blue, white, black, silver, green]
+mask: {shape: convex_hull, dilate_px: 16}
+generator: {adapter: flux2_klein_inpaint, res: 512}
+output: {dir: out/coco_car_occluded_regenerate}
+n_samples: 5

@@ -1,0 +1,19 @@
+# Same class, new appearance from text with Qwen-Image-2.1 (MLX, 4-bit; ~25 s per car at 512).
+# Qwen RESEARCH LICENCE: non-commercial only, and models trained on its outputs must say "Built with Qwen".
+# First run downloads 33 GB (Qwen/Qwen-Image-2.1). Same tasks as coco_car_regenerate (same seed).
+name: coco_car_regenerate_qwen21
+domain: scene
+source: {annotations: data/coco/annotations/instances_val2017.json, images: data/coco/val2017, split: val2017, download_missing: true}
+targets: {classes: [car], policy: specified, min_area: 4000, max_overlap_other: 0.05}
+operation: regenerate
+conditioning:
+  type: text
+  prompt: "a photo of a {attr} car"     # the adapter turns it into "Replace the masked area with a {attr} car. ..."
+  attributes: [red, white, black, silver, blue, yellow, green]
+mask: {shape: convex_hull, dilate_px: 16}
+generator: {adapter: qwen_image21_edit, res: 512, steps: 20}
+labeler: {adapter: gdino_sam2}
+verify: {min_color_change: 12}           # the model sometimes leaves the car almost unchanged
+output: {dir: out/coco_car_regenerate_qwen21}
+n_samples: 8
+seed: 0

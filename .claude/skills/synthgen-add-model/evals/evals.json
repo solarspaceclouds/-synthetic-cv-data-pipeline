@@ -1,0 +1,19 @@
+{
+  "skill_name": "synthgen-add-model",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "We're thinking of switching the occlusion handling from Depth-Anything-V2-Small to depth-anything/Depth-Anything-V2-Large-hf because it's more accurate. Can you check whether that's OK to add and what it would take? Don't download the weights yet.",
+      "expected_output": "",
+      "files": [],
+      "assertions": [
+        "The answer identifies Depth-Anything-V2-Large's licence as CC-BY-NC-4.0 / non-commercial and treats it as a decision for the user",
+        "The answer names a specific permissively licensed alternative model (not just 'look for one')",
+        "The answer questions whether a more accurate depth model would fix the documented occlusion failure (e.g. see-through mesh fences)",
+        "The answer recommends making the depth model a config option (recorded in job outputs) rather than only editing the constant",
+        "The answer says the depth model should be freed after the depth pass (memory)",
+        "No model weights were downloaded for Depth-Anything-V2-Large"
+      ]
+    }
+  ]
+}

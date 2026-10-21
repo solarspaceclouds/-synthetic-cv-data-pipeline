@@ -1,0 +1,16 @@
+# Replace each car with another car instance from the same split, used as a visual reference.
+name: coco_car_replace_ref
+domain: scene
+source: {annotations: data/coco/annotations/instances_val2017.json, images: data/coco/val2017, split: val2017, download_missing: true}
+targets: {classes: [car], policy: specified, min_area: 4000, max_overlap_other: 0.05}
+operation: replace
+conditioning:
+  type: reference_object
+  prompt: "a photo of a {cls}"
+  reference: {match: aspect, white_bg: true}
+mask: {shape: convex_hull, dilate_px: 16}
+generator: {adapter: flux2_klein_inpaint, res: 512}
+labeler: {adapter: gdino_sam2}
+output: {dir: out/coco_car_replace_ref}
+n_samples: 8
+seed: 0

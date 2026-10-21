@@ -1,0 +1,16 @@
+# Same class, new appearance from text (FLUX.2-klein, Apache-2.0).
+name: coco_car_regenerate
+domain: scene
+source: {annotations: data/coco/annotations/instances_val2017.json, images: data/coco/val2017, split: val2017, download_missing: true}
+targets: {classes: [car], policy: specified, min_area: 4000, max_overlap_other: 0.05}
+operation: regenerate
+conditioning:
+  type: text
+  prompt: "a photo of a {attr} car"
+  attributes: [red, white, black, silver, blue, yellow, green]
+mask: {shape: convex_hull, dilate_px: 16}    # not the exact outline: avoids copying the old silhouette
+generator: {adapter: flux2_klein_inpaint, res: 512}
+labeler: {adapter: gdino_sam2}
+output: {dir: out/coco_car_regenerate}
+n_samples: 8
+seed: 0

@@ -1,0 +1,71 @@
+# Every example job, re-run as its own baseline, plus every other model that can do the same task on
+# the same tasks.   python -m synthgen.compare configs/compare_all.yaml   (~2 h on an M5 Pro)
+# Left out: qwen_image_edit_4bit (bitsandbytes NF4: ~25 min per image and over 24 GB on Apple Silicon).
+# Text models doing removal get a background prompt; the removal check is the same as for LaMa.
+root: out/compare
+
+x-remove: &remove
+  - {adapter: flux2_klein_inpaint, res: 512, prompt: "empty background"}
+  - {adapter: sd15_inpaint, res: 512, prompt: "empty background"}
+  - {adapter: qwen_image21_edit, res: 512, prompt: "the background behind it, with the {cls} removed"}
+  - {adapter: qwen_image21_edit, res: 512, label: qwen_image21_edit-remove, prompt: "Remove the {cls} in the masked area and fill in the background behind it."}
+
+x-text: &text                                   # text-conditioned regenerate / change_class / insert
+  - {adapter: sd15_inpaint, res: 512}
+  - {adapter: qwen_image21_edit, res: 512}
+
+x-reference: &reference                         # reference-object replace
+  - {adapter: copy_paste}
+  - {adapter: flux2_klein_inpaint, res: 512}
+  - {adapter: mimicbrush, steps: 25, guidance: 5.0}
+
+jobs:
+  # removal
+  - {config: configs/coco_car_remove.yaml, alternatives: *remove}
+  - {config: configs/coco_person_remove.yaml, alternatives: *remove}
+  - {config: configs/coco_crowd_remove.yaml, alternatives: *remove}
+  - {config: configs/coco_car_occluded_remove.yaml, alternatives: *remove}
+  # new appearance from text
+  - config: configs/coco_car_regenerate.yaml
+    alternatives:
+      - {adapter: flux2_klein_mlx_refine, res: 512, strength: 0.85, steps: 5}
+      - {adapter: sd15_inpaint, res: 512}
+      - {adapter: qwen_image21_edit, res: 512}
+  - config: configs/coco_car_occluded_regenerate.yaml
+    alternatives:
+      - {adapter: flux2_klein_mlx_refine, res: 512, strength: 0.85, steps: 5}
+      - {adapter: sd15_inpaint, res: 512}
+      - {adapter: qwen_image21_edit, res: 512}
+  - config: configs/coco_car_regenerate_qwen21.yaml
+    alternatives:
+      - {adapter: flux2_klein_inpaint, res: 512}
+  # same vehicle, new colour (partial strength)
+  - config: configs/coco_vehicle_recolor.yaml
+    alternatives:
+      - {adapter: flux2_klein_mlx_refine, res: 512, steps: 8, strength: 0.65}
+      - {adapter: sd15_inpaint, res: 512, steps: 25, strength: 0.65}
+      - {adapter: qwen_image21_edit, res: 512, steps: 20, strength: 0.65, label: qwen_image21_edit-s0.65}
+      - {adapter: qwen_image21_edit, res: 512, steps: 20}
+  # another real instance from a reference
+  - {config: configs/coco_car_replace_anydoor.yaml, alternatives: *reference}
+  - config: configs/coco_car_replace_ref.yaml
+    alternatives:
+      - {adapter: anydoor, steps: 30, guidance: 4.5}
+      - {adapter: copy_paste}
+      - {adapter: mimicbrush, steps: 25, guidance: 5.0}
+  - {config: configs/coco_car_occluded_replace.yaml, alternatives: *reference}
+  - config: configs/coco_train_car_replace_anydoor.yaml
+    alternatives: *reference
+  # class change and insertion from text
+  - {config: configs/coco_car_to_truck.yaml, alternatives: *text}
+  - {config: configs/coco_car_insert.yaml, alternatives: *text}
+  - {config: configs/coco_car_insert_occlusion.yaml, alternatives: *text}
+  # faces
+  - config: configs/faces_mouth_flux_text.yaml
+    alternatives:
+      - {adapter: sd15_inpaint, res: 512}
+      - {adapter: qwen_image21_edit, res: 512, prompt_sub: [["^close-up photo of a face, (.*) mouth$", "a \\1 mouth"]]}
+      - {adapter: flux2_klein_mlx_refine, res: 512, strength: 0.85, steps: 5}
+  - config: configs/faces_eyes_mimicbrush.yaml
+    alternatives:
+      - {adapter: flux2_klein_inpaint, res: 512}

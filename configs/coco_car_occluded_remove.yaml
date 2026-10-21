@@ -1,0 +1,31 @@
+# Occlusion test: cars removed from behind a pole, a tree, a hydrant, a skateboarder and horses; the occluders must stay.
+name: coco_car_occluded_remove
+domain: scene
+source:
+  annotations: data/coco/annotations/instances_val2017.json
+  images: data/coco/val2017
+  split: val2017
+  download_missing: true
+targets:
+  classes:
+  - car
+  min_area: 5000
+  max_per_image: 1
+  image_ids:
+  - 526392
+  - 17029
+  - 439623
+  - 278705
+  - 507975
+operation: remove
+conditioning:
+  type: none
+mask:
+  shape: exact
+  dilate_px: 16
+generator:
+  adapter: lama
+output:
+  dir: out/coco_car_occluded_remove
+n_samples: 5
+

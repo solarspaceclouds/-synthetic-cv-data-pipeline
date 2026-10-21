@@ -1,0 +1,19 @@
+# Remove individual people (LaMa) -> hard negatives for person detection. Verification: no person
+# left inside the region; images with people COCO never labelled are dropped.
+name: coco_person_remove
+domain: scene
+source: {annotations: data/coco/annotations/instances_val2017.json, images: data/coco/val2017, split: val2017, download_missing: true}
+targets:
+  classes: [person]
+  min_area: 3000
+  # skip people touching what they hold or ride: removing them would leave it floating
+  exclude_near: [tennis racket, skis, snowboard, surfboard, skateboard, baseball bat, bicycle, motorcycle, horse, umbrella, kite]
+operation: remove
+conditioning: {type: none}
+mask: {shape: exact, dilate_px: 16}        # dilate to cover edges and some shadow
+generator: {adapter: lama}
+labeler: {adapter: gdino_sam2}
+verify: {unlabelled: reject}
+output: {dir: out/coco_person_remove}
+n_samples: 24                              # expect to keep a quarter to a half after review
+seed: 0

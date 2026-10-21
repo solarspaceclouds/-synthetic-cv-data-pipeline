@@ -1,0 +1,19 @@
+{
+  "skill_name": "synthgen-dataset",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "I need some hard negatives for our person detector. Using COCO val2017 (annotations are already in data/coco/annotations, images can be downloaded on demand), make 5 synthetic images where a person has been removed, check they actually look ok, and tell me where the labelled output is.",
+      "expected_output": "",
+      "files": [],
+      "assertions": [
+        "The job YAML uses targets.exclude_near and/or verify.unlabelled (the guards against floating held objects and unlabelled people)",
+        "The job ran to completion: an annotations.json exists under outputs/ with at least 1 image",
+        "Full-resolution close-ups of the edits were made and inspected (a closeups/ or similar folder of per-edit crops exists)",
+        "The answer reports how many samples were kept after visual inspection separately from how many passed automatic verification",
+        "The answer discards (does not deliver as good) samples with leftover shadows/reflections, fragments or floating held objects, or states none were found after inspection",
+        "The answer gives the path to the labelled output, and nothing was written to the repo's out/ folder"
+      ]
+    }
+  ]
+}

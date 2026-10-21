@@ -1,0 +1,22 @@
+# environments and third-party code (recreated by `uv sync` and tools/setup_workers.sh)
+/.venv/
+/envs/
+/third_party/
+
+# data and outputs (bring your own datasets; see README "Source data")
+/data/
+/out/
+/bench_out/
+/skill-evals/
+
+# model weights: downloaded to ~/.cache on first use, never committed
+*.pt
+*.pth
+*.ckpt
+*.bin
+*.safetensors
+
+__pycache__/
+*.pyc
+.DS_Store
+.claude/settings.local.json

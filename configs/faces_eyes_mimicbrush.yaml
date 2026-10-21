@@ -1,0 +1,15 @@
+# Face-part replacement: eyes copied from another face (MimicBrush, reference-based).
+# Dev data: synthetic portraits from tools/make_synthetic_faces.py (no real people).
+name: faces_eyes_mimicbrush
+domain: face
+source: {format: images, images: data/faces_synth, split: dev_synthetic}
+targets: {classes: [eyes], min_area: 300, max_per_image: 1}
+operation: replace
+conditioning: {type: reference_object}
+mask: {shape: exact, dilate_px: 10}
+generator: {adapter: mimicbrush, steps: 25, guidance: 5.0, context_scale: 2.5}
+labeler: {adapter: face_parsing}
+verify: {min_score: 0.5, min_inside: 0.7}
+output: {dir: out/faces_eyes_mimicbrush}
+n_samples: 6
+seed: 0

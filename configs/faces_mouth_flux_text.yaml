@@ -1,0 +1,17 @@
+# Face-part regeneration from text (FLUX.2-klein): new mouth/lips, no reference.
+name: faces_mouth_flux_text
+domain: face
+source: {format: images, images: data/faces_synth, split: dev_synthetic}
+targets: {classes: [mouth], min_area: 300, max_per_image: 1}
+operation: regenerate
+conditioning:
+  type: text
+  prompt: "close-up photo of a face, {attr} mouth"
+  attributes: [smiling, "slightly open", "closed, thin-lipped", "full-lipped", "with red lipstick"]
+mask: {shape: exact, dilate_px: 14}
+generator: {adapter: flux2_klein_inpaint, res: 512, context_scale: 2.5}
+labeler: {adapter: face_parsing}
+verify: {min_score: 0.5, min_inside: 0.7}
+output: {dir: out/faces_mouth_flux_text}
+n_samples: 6
+seed: 0

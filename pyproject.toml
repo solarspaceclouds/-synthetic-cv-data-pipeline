@@ -1,0 +1,20 @@
+[project]
+name = "synthgen"
+version = "0.1.0"
+requires-python = ">=3.12"
+dependencies = [
+    "accelerate>=1.15.0",
+    "bitsandbytes>=0.50.2",
+    "diffusers>=0.41.0",
+    "mflux>=0.21.0; sys_platform == 'darwin'",   # MLX adapters; Apple Silicon only
+    "numpy>=2.5.3",
+    "nvidia-ml-py>=12.535.77; sys_platform == 'linux'",   # GPU memory measurement on NVIDIA
+    "pillow>=12.3.0",
+    "psutil>=7.2.2",
+    "pyyaml>=6.0.3",
+    "safetensors>=0.8.0",
+    "scipy>=1.18.1",
+    "torch>=2.14.1",
+    "torchvision>=0.29.1",
+    "transformers>=5.18.0",
+]

@@ -1,0 +1,17 @@
+# Copy-paste baseline on the same tasks as coco_train_car_replace_anydoor (same seed, same references).
+# matched on aspect ratio, local lighting and DINOv2 viewpoint similarity to the car being replaced.
+name: coco_train_car_replace_copypaste
+domain: scene
+source: {annotations: data/coco/annotations/instances_train2017.json, images: data/coco/train2017, split: train2017, download_missing: true}
+targets: {classes: [car], policy: specified, min_area: 6000, max_overlap_other: 0.05}
+operation: replace
+conditioning:
+  type: reference_object
+  prompt: "a photo of a {cls}"
+  reference: {match: visual, white_bg: true, min_area: 16000, max_uses: 1}
+mask: {shape: convex_hull, dilate_px: 16}
+generator: {adapter: copy_paste}
+labeler: {adapter: gdino_sam2}
+output: {dir: out/coco_train_car_replace_copypaste}
+n_samples: 8
+seed: 1

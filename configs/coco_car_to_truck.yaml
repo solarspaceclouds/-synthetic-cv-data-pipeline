@@ -1,0 +1,20 @@
+# Change class car -> truck. Verification rejects outputs that still read as a car (contrast: auto).
+name: coco_car_to_truck
+domain: scene
+source: {annotations: data/coco/annotations/instances_val2017.json, images: data/coco/val2017, split: val2017, download_missing: true}
+targets: {classes: [car], policy: specified, min_area: 4000, max_overlap_other: 0.05}
+operation: change_class
+change_to: [truck]
+conditioning:
+  type: text
+  prompt: "a photo of a {attr} pickup truck"
+  attributes: [red, white, black, silver, blue]
+mask: {shape: bbox, dilate_px: 24}           # trucks are taller than cars: give room
+generator: {adapter: flux2_klein_inpaint, res: 512}
+labeler: {adapter: gdino_sam2}
+verify:
+  contrast: auto
+  phrases: {truck: [pickup truck, truck]}   # detector reads pickups as "car" unless asked for "pickup truck"
+output: {dir: out/coco_car_to_truck}
+n_samples: 8
+seed: 0

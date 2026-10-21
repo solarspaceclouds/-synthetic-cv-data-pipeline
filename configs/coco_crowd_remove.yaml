@@ -1,0 +1,19 @@
+# Remove COCO crowd regions (iscrowd RLE masks: groups of people annotated as one region) with LaMa.
+# Crowd regions are large, so expect smears; review every close-up.
+name: coco_crowd_remove
+domain: scene
+source: {annotations: data/coco/annotations/instances_val2017.json, images: data/coco/val2017, split: val2017, download_missing: true}
+targets:
+  classes: [person]
+  crowd: only
+  min_area: 3000
+  skip_truncated: false                    # crowds usually run off the edge of the frame
+operation: remove
+conditioning: {type: none}
+mask: {shape: exact, dilate_px: 16}
+generator: {adapter: lama}
+labeler: {adapter: gdino_sam2}
+verify: {unlabelled: flag}                 # the people around a crowd region are often unlabelled too
+output: {dir: out/coco_crowd_remove}
+n_samples: 16
+seed: 0

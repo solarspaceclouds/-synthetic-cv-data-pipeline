@@ -1,0 +1,13 @@
+# Remove cars (LaMa) -> hard negatives. Verification: no car left inside the region.
+name: coco_car_remove
+domain: scene
+source: {annotations: data/coco/annotations/instances_val2017.json, images: data/coco/val2017, split: val2017, download_missing: true}
+targets: {classes: [car], policy: specified, min_area: 4000, max_overlap_other: 0.05}
+operation: remove
+conditioning: {type: none}
+mask: {shape: exact, dilate_px: 12}          # dilate to catch edges and some shadow
+generator: {adapter: lama}
+labeler: {adapter: gdino_sam2}
+output: {dir: out/coco_car_remove}
+n_samples: 8
+seed: 0

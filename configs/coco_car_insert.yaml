@@ -1,0 +1,30 @@
+# Insert new cars into free space, placed and sized from the cars already in the scene
+# (synthgen/placement.py). Text-conditioned FLUX.2-klein; verification re-detects the new car.
+name: coco_car_insert
+domain: scene
+source: {annotations: data/coco/annotations/instances_val2017.json, images: data/coco/val2017, split: val2017, download_missing: true}
+targets: {classes: [car], max_per_image: 1}
+operation: insert
+conditioning:
+  type: text
+  prompt: "a photo of a {attr} car parked on the street"
+  attributes: [red, white, black, silver, blue, grey]
+placement:
+  y_jitter: 0.05
+  size_jitter: 0.15
+  gap: 0.05
+  min_height_px: 32
+  ground_phrases: [road, street, parking lot]   # bottom of the new car must be on these
+  ground_min_frac: 0.6
+mask: {dilate_px: 8}
+generator: {adapter: flux2_klein_inpaint, res: 512, context_scale: 2.5}
+labeler: {adapter: gdino_sam2}
+verify: {min_fill: 0.25}
+postprocess:
+  ops:
+    - {op: downscale, p: 0.5, factor: [0.5, 0.85]}
+    - {op: noise, p: 0.5, sigma: [1, 4]}
+    - {op: jpeg, p: 0.8, quality: [50, 90]}
+output: {dir: out/coco_car_insert}
+n_samples: 8
+seed: 0

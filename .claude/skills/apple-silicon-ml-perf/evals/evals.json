@@ -1,0 +1,19 @@
+{
+  "skill_name": "apple-silicon-ml-perf",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Our MimicBrush eyes job on my M5 Pro (24GB) normally runs ~35s per image. Yesterday I started a FLUX insert job in another terminal at the same time and both crawled to about 3 minutes per image, and Activity Monitor showed memory pressure in yellow. The FLUX job alone does ~4s per image. What's going on and what should I do? The jobs aren't running right now, I stopped them. Don't kill or start anything heavy.",
+      "expected_output": "",
+      "files": [],
+      "assertions": [
+        "The answer identifies combined memory exceeding available memory, causing swap, as the cause",
+        "The answer gives quantitative per-job memory figures and compares them with the ~17.8 GB GPU limit / 24 GB RAM",
+        "The answer recommends running the jobs one at a time",
+        "The answer gives a concrete way to monitor per-process memory including the worker/child process during the next run (not only system-wide swap)",
+        "The answer does not recommend raising iogpu.wired_limit_mb as a fix",
+        "No processes were killed and no generation job was started"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,22 @@
+# Recolour vehicles: same make, shape, livery and text, new paint colour (FLUX.2-klein, Apache-2.0).
+# How: regenerate inside the vehicle's exact outline at partial strength, so the model keeps the
+# structure and changes mostly the colour. With 8 steps, strength 0.65 recoloured while keeping the
+# vehicle; 0.5 often changed nothing; 0.8 started to change the vehicle's shape. With the default
+# 4 steps, strength only acts in quarter steps (0.6 and 0.75 give identical results).
+# verify.min_color_change rejects outputs whose colour barely changed (e.g. silver asked to go white).
+name: coco_vehicle_recolor
+domain: scene
+source: {annotations: data/coco/annotations/instances_val2017.json, images: data/coco/val2017, split: val2017, download_missing: true}
+targets: {classes: [car, truck, bus], policy: random, min_area: 8000}
+operation: regenerate
+conditioning:
+  type: text
+  prompt: "a photo of a {attr} {cls}"
+  attributes: [bright red, bright blue, yellow, green, white, black, orange]
+mask: {shape: exact, dilate_px: 4}        # exact outline: the shape is meant to stay
+generator: {adapter: flux2_klein_inpaint, res: 512, steps: 8, strength: 0.65}
+labeler: {adapter: gdino_sam2}
+verify: {min_color_change: 12}            # p75 CIELAB delta E; no visible change ~3, clear recolour 19-61
+output: {dir: out/coco_vehicle_recolor}
+n_samples: 12
+seed: 1
