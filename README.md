@@ -21,6 +21,53 @@ Adding inpainting / generation models: [docs/ADDING_MODELS.md](docs/ADDING_MODEL
 Claude Code): `synthgen-dataset` (design, run and review a job), `synthgen-add-model` (vet and
 integrate a new model), `apple-silicon-ml-perf` (diagnose slow or memory-bound models on a Mac).
 
+## Examples
+
+Crops from the example jobs in `configs/` (COCO val2017 and synthetic portraits). In each figure, the
+top row is the original with the edit region outlined in **red**, and the bottom row is the result with
+the label recovered by verification in **green** (the box that goes into the exported COCO file).
+Reference-guided edits show the reference as an inset. The examples are hand-picked from accepted
+samples; acceptance rates and failure modes are in the Findings sections below.
+
+**Remove**: hard negatives; the background is filled in from context (`configs/coco_car_remove.yaml`, LaMa, 8/8 accepted).
+
+![Cars removed with LaMa](docs/images/remove.jpg)
+
+**Regenerate from text**: same object, new appearance; here recolouring vehicles
+(`configs/coco_vehicle_recolor.yaml`, FLUX.2-klein, 9/12 accepted; the rest are rejected because the colour barely changed).
+
+![Vehicles recoloured from a text prompt](docs/images/regenerate.jpg)
+
+**Replace from a reference**: swap in another real instance of the class, taken from elsewhere in the
+dataset (`configs/coco_car_replace_anydoor.yaml`, AnyDoor). In the right-hand example the pole stays in front of the new car.
+
+![Cars replaced from a reference image with AnyDoor](docs/images/replace_reference.jpg)
+
+**Insert**: new objects where they fit; the planner picks free road, scales the box from
+nearby objects, and keeps what stands in front (`configs/coco_car_insert.yaml`, FLUX.2-klein, 7/8 accepted).
+
+![Cars inserted into free space](docs/images/insert.jpg)
+
+**Occlusion handling**: whatever was in front of the edited object stays in front, and the
+exported mask excludes it (`configs/coco_car_occluded_replace.yaml`, AnyDoor).
+
+![Occluders kept in front of replaced cars](docs/images/occlusion.jpg)
+
+**Faces**: part edits from text or from another face, with the face-parsing label map recovered
+(`configs/faces_mouth_flux_text.yaml`, `configs/faces_eyes_mimicbrush.yaml`; synthetic portraits, no real people).
+
+![Mouth and eye edits on synthetic faces](docs/images/faces.jpg)
+
+**Comparing models on identical tasks** (`python -m synthgen.compare`): the same images, masks,
+prompts and seeds for every model. Verification catches the outputs where no car lands in the region
+(top two rows), but not every bad output: in the bottom row, SD-1.5's smeared car and the MLX refine's
+warped one were both accepted. That is why `review` and the close-ups matter (see [docs/USAGE.md](docs/USAGE.md)).
+
+![Four generators on the same regenerate tasks](docs/images/compare_models.jpg)
+
+Figures are built by `tools/make_readme_figures.py`. Photo licences and attribution:
+[docs/images/CREDITS.md](docs/images/CREDITS.md).
+
 ## Requirements
 
 - **Apple Silicon Mac** with a recent macOS. The models run on the GPU through PyTorch-MPS and
@@ -233,9 +280,10 @@ synthgen/
   bench.py            per-adapter benchmark, one subprocess each -> profiles/<machine>.json
   registry.py         name -> adapter class (lazy imports)
 workers/              MimicBrush and AnyDoor worker scripts (run inside envs/<name>)
-tools/                setup_workers.sh, download_datasets.sh, make_synthetic_faces.py, convert_anydoor_ckpt.py
+tools/                setup_workers.sh, download_datasets.sh, make_synthetic_faces.py, convert_anydoor_ckpt.py,
+                      make_readme_figures.py
 configs/              example jobs;  profiles/: benchmark results per machine
-docs/                 USAGE.md (user guide), ADDING_MODELS.md
+docs/                 USAGE.md (user guide), ADDING_MODELS.md; images/ (README figures, CREDITS.md)
 .claude/skills/       Claude Code skills for this repo
 ```
 
